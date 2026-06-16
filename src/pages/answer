@@ -1,0 +1,88 @@
+import { getDaysInMonth, isMonday, isTuesday, setDate } from "date-fns";
+import { DAYSINWEEK } from "../utils/constats";
+import { NavLink } from "react-router";
+import { Fragment } from "react";
+import { useState } from "react";
+import { useEffect } from "react";
+
+const FAKE_DATA = [
+  {
+    day: 1,
+    hr: 13,
+    name: "candy",
+  },
+  {
+    day: 1,
+    hr: 13,
+    name: "fewf",
+  },
+  {
+    day: 2,
+    hr: 15,
+    name: "crush",
+  },
+];
+
+export default function MainSchedule() {
+  let d = new Date();
+  //   d.setMonth(month);
+  //   d.setFullYear(year);
+  let firstDay = setDate(d, 1);
+
+  const [events, setEvents] = useState(FAKE_DATA);
+
+  return (
+    <div className="h-screen w-full">
+      <div className="flex justify-center">
+        <div className="mx-6 mb-6 text-5xl text-medium">Main Schedule</div>
+      </div>
+      <div className="sm:flex">
+        <div className="bg-gray-100 w-full">
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: "auto 1fr 1fr 1fr 1fr 1fr",
+              gridTemplateRows: "auto",
+              gridAutoRows: 80,
+            }}
+          >
+            <div></div>
+            {"Mo,Tu,Wed,Th,Fr".split(",").map((v) => (
+              <div key={v} className="flex justify-center">
+                {v}
+              </div>
+            ))}
+            {new Array(10)
+              .fill(0)
+              .map((v, i) => i + 7)
+              .map((hr) => (
+                <Fragment key={hr}>
+                  <div
+                    className="pr-3 flex justify-end items-center relative left-2 border-r"
+                    style={{
+                      top: "calc(50% - 3px)",
+                    }}
+                  >
+                    {hr % 12 === 0 ? 12 : hr % 12}
+                    {hr > 11 ? " PM" : " AM"}
+                  </div>
+                  {new Array(5).fill(0).map((__, day) => (
+                    <div
+                      className="border-b border-r flex items-center"
+                      key={day}
+                    >
+                      {events
+                        .filter((v) => v.hr === hr && v.day === day)
+                        .map((v, i) => (
+                          <div key={i}>{v.name}</div>
+                        ))}
+                    </div>
+                  ))}
+                </Fragment>
+              ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
