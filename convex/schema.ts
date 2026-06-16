@@ -8,7 +8,8 @@ export default defineSchema({
     name: v.string(),
     isOdd: v.boolean(),
     day: v.number(), // 0 = Monday, 5 = Friday
-    hour: v.number(),
+    startTime: v.number(), // minutes from midnight
+    endTime: v.number(), // minutes from midnight
     courseId: v.optional(v.id("courses")),
   }),
   courses: defineTable({
