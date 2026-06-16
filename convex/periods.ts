@@ -103,9 +103,16 @@ export const testAdd = mutation({
   args: {},
   handler: async (ctx) => {
     let first = await ctx.db.query("periods").take(1);
-    if (first) return;  
+    if (first.length > 0) return;  
     for (const period of testData) {
       await ctx.db.insert("periods", period);
     }
+  },
+});
+
+export const getPeriods = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("periods").collect();
   },
 });
