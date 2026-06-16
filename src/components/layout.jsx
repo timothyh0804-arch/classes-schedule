@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router";
+import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -28,12 +28,11 @@ export default function Layout() {
               <span className="text-sm font-bold text-primary">
                 🧑‍🦱 {user?.email.split("@")[0]}
               </span>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => navigate("/create-post")}
-              >
-                Post
-              </button>
+              {user?.isAdmin && (
+                <Link to="/admin/course-list" className="text-xs bg-primary text-primary-content px-2 py-1 rounded">
+                  Admin
+                </Link>
+              )}
               <button className="btn btn-sm" onClick={() => signOut()}>
                 Logout
               </button>
