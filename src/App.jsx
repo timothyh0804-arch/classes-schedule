@@ -3,14 +3,13 @@ import Layout from "./components/layout";
 import LoginPage from "./pages/login";
 import HomePage from "./pages/home";
 import ClassesList from "./pages/classesList";
-import MainSchedule from "./pages/mainSchedule";
 import ScheduleDetails from "./pages/scheduleDetails";
 import { Authenticated, Unauthenticated } from "convex/react";
 import CourseList from "./pages/admin/course-list";
 import PeriodList from "./pages/admin/period-list";
+import MainSchedulePage from "./pages/main-schedule/main-schedule-page";
 
 export default function App() {
-
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -19,7 +18,7 @@ export default function App() {
 
         <Route element={<AuthenticatedLayout />}>
           <Route path="/classesList" element={<ClassesList />} />
-          <Route path="/mainSchedule" element={<MainSchedule />} />
+          <Route path="/mainSchedule" element={<MainSchedulePage />} />
           <Route path="/scheduleDetails" element={<ScheduleDetails />} />
 
           <Route path="/admin" element={<AdminLayout />}>
@@ -27,7 +26,6 @@ export default function App() {
             <Route path="/admin/period-list" element={<PeriodList />} />
           </Route>
         </Route>
-        
       </Route>
     </Routes>
   );
@@ -36,25 +34,28 @@ export default function App() {
 function AuthenticatedLayout() {
   return (
     <>
-    <Authenticated>
-      <Outlet />
-    </Authenticated>
-    <Unauthenticated>
-      <Navigate to="/login" />
-    </Unauthenticated>
+      <Authenticated>
+        <Outlet />
+      </Authenticated>
+      <Unauthenticated>
+        <Navigate to="/login" />
+      </Unauthenticated>
     </>
   );
 }
 
 function AdminLayout() {
-
   // TODO: check admin privileges
 
   return (
     <>
       <div className="flex items-center gap-2">
-        <Link to="/admin/course-list" className="btn btn-sm">Courses</Link>
-        <Link to="/admin/period-list" className="btn btn-sm">Periods</Link>
+        <Link to="/admin/course-list" className="btn btn-sm">
+          Courses
+        </Link>
+        <Link to="/admin/period-list" className="btn btn-sm">
+          Periods
+        </Link>
       </div>
       <div className="divider"></div>
       <Outlet />
