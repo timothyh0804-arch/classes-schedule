@@ -1,94 +1,139 @@
-import { getDaysInMonth, isMonday, isTuesday, setDate } from "date-fns";
-import { DAYSINWEEK } from "../../utils/constats";
-import { NavLink } from "react-router";
-import { Fragment } from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import { Fragment, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import MainSchedulePeriod from "./main-schedule-period";
 
 const COLORS = [
-  "bg-red-300",
-  "bg-orange-300",
-  "bg-yellow-300",
-  "bg-green-300",
-  "bg-blue-300",
-  "bg-indigo-300",
-  "bg-purple-300",
-  "bg-pink-300",
+  "bg-rose-500",
+  "bg-orange-500",
+  "bg-amber-500",
+  "bg-emerald-500",
+  "bg-sky-500",
+  "bg-indigo-500",
+  "bg-violet-500",
+  "bg-pink-500",
 ];
 
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const HOURS = Array.from({ length: 10 }, (_, i) => i + 7);
+
 export default function MainSchedulePage() {
+  const [isOdd, setIsOdd] = useState(true);
   const periods = useQuery(api.periods.getPeriods);
+  const chosenPeriods = periods?.filter((p) => p.isOdd === isOdd);
 
-  const chosenPeriods = periods?.filter((p) => p.isOdd);
-
-  let d = new Date();
-  //   d.setMonth(month);
-  //   d.setFullYear(year);
-  let firstDay = setDate(d, 1);
+  const todayDow = new Date().getDay(); // 0=Sun, 1=Mon, …, 5=Fri, 6=Sat
 
   return (
-    <div className="h-screen w-full">
-      <div className="flex justify-center">
-        <div className="mx-6 mb-6 text-5xl text-medium">
-          Main Schedule {periods?.length}
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 px-8 py-5 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            Class Schedule
+          </h1>
+          <p className="text-sm text-slate-400 mt-0.5">{isOdd ? "Odd" : "Even"} week</p>
+        </div>
+        <div className="flex items-center bg-slate-100 rounded-full p-1 gap-1">
+          {[true, false].map((odd) => (
+            <button
+              key={String(odd)}
+              onClick={() => setIsOdd(odd)}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                isOdd === odd
+                  ? "bg-white text-indigo-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {odd ? "Odd" : "Even"}
+            </button>
+          ))}
         </div>
       </div>
-      <div className="sm:flex">
-        <div className="bg-gray-100 w-full">
+
+      {/* Calendar grid */}
+      <div className="p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div
             className="grid"
             style={{
-              gridTemplateColumns: "auto 1fr 1fr 1fr 1fr 1fr",
-              gridAutoRows: 200,
+              gridTemplateColumns: "52px repeat(5, 1fr)",
+              gridTemplateRows: "44px",
+              gridAutoRows: "96px",
             }}
           >
-            <div></div>
-            {"Mo,Tu,Wed,Th,Fr".split(",").map((v) => (
-              <div key={v} className="flex justify-center">
-                {v}
-              </div>
-            ))}
-            {new Array(10)
-              .fill(0)
-              .map((_, i) => i + 7)
-              .map((hr, i) => (
-                <Fragment key={i}>
-                  <div
-                    className="pr-3 flex justify-end items-center  left-2 border-r"
-                    style={{
-                      top: "calc(50% - 3px)",
-                    }}
+            {/* Top-left corner */}
+            <div className="border-b border-slate-200 bg-slate-50" />
+
+            {/* Day headers */}
+            {DAYS.map((day, i) => {
+              const isToday = todayDow === i + 1;
+              return (
+                <div
+                  key={day}
+                  className={`border-b border-l border-slate-200 flex items-center justify-center ${
+                    isToday ? "bg-indigo-50" : "bg-slate-50"
+                  }`}
+                >
+                  <span
+                    className={`text-xs font-semibold uppercase tracking-widest ${
+                      isToday ? "text-indigo-500" : "text-slate-400"
+                    }`}
                   >
-                    {hr <= 12 ? hr : hr - 12} {hr >= 12 ? "PM" : "AM"}
-                  </div>
-                  {[1, 2, 3, 4, 5].map((day) => (
+                    {day}
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* Hour rows */}
+            {HOURS.map((hr) => (
+              <Fragment key={hr}>
+                {/* Time gutter */}
+                <div className="border-b border-slate-100 flex items-start justify-end pr-2 pt-1 bg-slate-50">
+                  <span className="text-[10px] font-medium text-slate-400 leading-none">
+                    {hr <= 12 ? hr : hr - 12}
+                    <span className="text-slate-300">
+                      {hr >= 12 ? "p" : "a"}
+                    </span>
+                  </span>
+                </div>
+
+                {/* Day cells */}
+                {[1, 2, 3, 4, 5].map((day) => {
+                  const isToday = todayDow === day;
+                  return (
                     <div
                       key={day}
-                      className="border-b border-r flex items-start relative"
+                      className={`border-b border-l border-slate-100 relative ${
+                        isToday ? "bg-indigo-50/40" : ""
+                      }`}
                     >
-                      {chosenPeriods &&
-                        chosenPeriods
-                          .filter(
-                            (p) =>
-                              p.day === day &&
-                              Math.floor(p.startTime / 60) === hr,
-                          )
-                          .map((p) => (
-                            <MainSchedulePeriod
-                              period={p}
-                              key={p._id}
-                              color={
-                                COLORS[chosenPeriods.indexOf(p) % COLORS.length]
-                              }
-                            />
-                          ))}
+                      {/* Half-hour tick */}
+                      <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-slate-100 pointer-events-none" />
+
+                      {chosenPeriods
+                        ?.filter(
+                          (p) =>
+                            p.day === day &&
+                            Math.floor(p.startTime / 60) === hr,
+                        )
+                        .map((p) => (
+                          <MainSchedulePeriod
+                            key={p._id}
+                            period={p}
+                            color={
+                              COLORS[
+                                chosenPeriods.indexOf(p) % COLORS.length
+                              ]
+                            }
+                          />
+                        ))}
                     </div>
-                  ))}
-                </Fragment>
-              ))}
+                  );
+                })}
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
