@@ -4,34 +4,39 @@ import { NavLink } from "react-router";
 import { Fragment } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const FAKE_DATA = [
   {
     day: 0,
-    hr: 8,
+    startTime: 450,
     name: "Period 0",
     durationHr: 1,
   },
   {
     day: 0,
-    hr: 10,
+    startTime: 510,
     name: "Period 1",
     durationHr: 2.5 /*hour*/,
   },
 ];
 
 export default function MainSchedule() {
+  const periods = useQuery(api.periods.getPeriods);
+  const [events, setEvents] = useState(FAKE_DATA);
+
   let d = new Date();
   //   d.setMonth(month);
   //   d.setFullYear(year);
   let firstDay = setDate(d, 1);
 
-  const [events, setEvents] = useState(FAKE_DATA);
-
   return (
     <div className="h-screen w-full">
       <div className="flex justify-center">
-        <div className="mx-6 mb-6 text-5xl text-medium">Main Schedule</div>
+        <div className="mx-6 mb-6 text-5xl text-medium">
+          Main Schedule {periods.length}
+        </div>
       </div>
       <div className="sm:flex">
         <div className="bg-gray-100 w-full">
@@ -52,24 +57,31 @@ export default function MainSchedule() {
             {new Array(10)
               .fill(0)
               .map((v, i) => i + 7)
-              .map((hr) => (
-                <Fragment key={hr}>
+              .map((startTime) => (
+                <Fragment key={startTime}>
                   <div
                     className="pr-3 flex justify-end items-center  left-2 border-r"
                     style={{
                       top: "calc(50% - 3px)",
                     }}
                   >
-                    {hr % 12 === 0 ? 12 : hr % 12}
-                    {hr > 11 ? " PM" : " AM"}
+                    {Math.floor(startTime / 60) % 12 === 0
+                      ? 12
+                      : Math.floor(startTime / 60) % 12}
+                    {Math.floor(startTime / 60) > 11 ? " PM" : " AM"}
                   </div>
                   {new Array(5).fill(0).map((__, day) => (
                     <div className="border-b border-r flex items-start relative">
                       {events
-                        .filter((v) => v.day === day && v.hr === hr)
+                        .filter(
+                          (v) =>
+                            v.day === day &&
+                            Math.floor(v.startTime / 60) ===
+                              Math.floor(v.startTime / 60),
+                        )
                         .map((v) => (
                           <div
-                            className="border ml-1 p-1 absolute bg-gray-500 left-1 z-2"
+                            className="border ml-1 p-1 absolute bg-gray-500 -left-1 z-2 w-full flex justify-center items-center"
                             style={{
                               top: `${top}%`,
                               height: `${v.durationHr * 100}%`,
